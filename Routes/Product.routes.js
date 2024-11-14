@@ -7,7 +7,7 @@ const router=Router()
 
 router.route('/get-all-products').get(GetAllProducts)
 router.route('/get-product-details').post(GetProductDetails)
-router.route('/add-product').post(upload.any(),uploadImages,AddProduct2)
+router.route('/add-product').post(upload.any(),verifyUser,uploadImages,AddProduct2)
 router.route('/filter-products').post(FilterProducts)
 
 export default router
