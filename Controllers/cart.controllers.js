@@ -65,11 +65,13 @@ const AddToCart = async (req, res) => {
                   productId: product._id,
                   quantity,
                   size,
+                  discountedPrice:colorVariant.discountedPrice,
+                  discount:colorVariant.discount,
                   name:product.name,
                   image:colorVariant.image,
                   color:colorVariant.colorName,
                   slug: colorVariant.slug,
-                  price: colorVariant.discountedPrice,
+                  price: colorVariant.price,
                 });
               }
 
@@ -78,7 +80,7 @@ const AddToCart = async (req, res) => {
                 0
               );
               cart.totalPrice = cart.cartItems.reduce(
-                (sum, item) => sum + item.quantity * item.price,
+                (sum, item) => sum + item.quantity * item.discountedPrice,
                 0
               );
               await cart.save();
@@ -103,10 +105,12 @@ const AddToCart = async (req, res) => {
                         slug: colorVariant.slug,
                         quantity: quantity,
                         size,
+                        discountedPrice:colorVariant.discountedPrice,
+                        discount:colorVariant.discount,
                         name:product.name,
                         image:colorVariant.image,
                         color:colorVariant.colorName,
-                        price: colorVariant.discountedPrice,
+                        price: colorVariant.price,
                       },
                     ],
                     totalQuantity: 1,
@@ -139,8 +143,12 @@ const AddToCart = async (req, res) => {
 };
 
 const RemoveFromCart = async (req, res) => {
-  const { user_id, slug } = req.body;
-
+  const { user_id, slug,size } = req.body;
+if(!user_id||!slug ||!size){
+return res.status(401).json({
+  "error":"user id,size and slug all are required"
+})
+}
   try {
     const result = await findProductByColorSlug(slug);
 
@@ -152,8 +160,9 @@ const RemoveFromCart = async (req, res) => {
         
         const ItemIndex = cart.cartItems.findIndex(
           (item) =>
+           
             item.productId.equals(result.product._id) &&
-                  item.slug === result.colorVariant.slug
+                  item.slug === result.colorVariant.slug && item.size===size
         );
 
         console.log("itemindex",ItemIndex);
@@ -197,6 +206,28 @@ const RemoveFromCart = async (req, res) => {
   }
 };
 
+const DeleteFromCart=async(req,res)=>{
+const {user_id,slug,size}=req.body;
+if(!user_id||!slug){
+  return res.status(401).json({
+    "error":"user id and slug both are required"
+  })
+}
+
+try {
+ const cart=await Cart.findOne({user:user_id})
+ cart.cartItems=cart.cartItems?.filter((item)=> item.slug!==slug || item.size!==size)
+ await cart.save()
+ return res.status(200).json({
+  "success":"cart item is deleted"
+ })
+} catch (error) {
+  console.log("finding cart in delete form cart error:",error);
+  return res.status(401).json({
+    "error":"internal error is occurred"
+  })
+}
+}
 
 const GetCart=async(req,res)=>{
 const {user_id}=req.body;
@@ -216,4 +247,4 @@ await User.findOne({_id:user_id}).then(async(user)=>{
 })
 
 }
-export { AddToCart, RemoveFromCart,GetCart };
+export { AddToCart, RemoveFromCart,GetCart,DeleteFromCart };

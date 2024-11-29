@@ -30,6 +30,14 @@ const cartSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        discount:{
+          type:String,
+          required:true
+        },
+        discountedPrice:{
+          type:String,
+          required:true
+        },
         color: {
           type: String,
           required: true,

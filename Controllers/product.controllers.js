@@ -272,51 +272,78 @@ const FilterProducts = async (req, res) => {
     latest,
     HighToLow,
   } = req.body;
+console.log("priceRanges",priceRanges);
 
   let sortQuery = {};
   let findQuery = {};
-  if (discount) {
-    sortQuery.discount = -1;
-  }
+  
   if (latest) {
     sortQuery.createdAt = -1;
+  } 
+  if (discount) {
+    sortQuery["colors.discount"] = -1; 
+  } else if (HighToLow) {
+    sortQuery["colors.discountedPrice"] = -1; 
+  } else if (latest) {
+    sortQuery["createdAt"] = -1; 
+  } else {
+    sortQuery["colors.discountedPrice"] = 1; 
   }
   let rangeQueries;
   if (priceRanges && priceRanges.length > 0) {
-    rangeQueries = priceRanges.map((range) => ({
-      discountedPrice: { $gte: range.minPrice, $lte: range.maxPrice },
+     rangeQueries = priceRanges.map((range) => ({
+      colors: {
+        $elemMatch: {
+          discountedPrice: { $gte: range.minPrice, $lte: range.maxPrice },
+        },
+      },
     }));
-
+  
     findQuery = { $or: rangeQueries };
   }
+  console.log('sizeranges',sizeRanges);
+  
 
   if (sizeRanges && sizeRanges.length > 0) {
     let sizeQueries = sizeRanges.map((range) => ({
-      size: range,
+      colors:{
+        $elemMatch:{
+          size:range
+        }
+      }
     }));
     if (priceRanges && priceRanges.length > 0) {
-      findQuery = { $and: [{ $or: sizeQueries }, { $or: rangeQueries }] };
+      findQuery = {
+          $and: [
+            { $or: sizeQueries },  
+            { $or: rangeQueries },  
+          ]
+       
+      };
     } else {
       findQuery = { $or: sizeQueries };
     }
   }
 
-  if (colorName) {
-    findQuery.colorName = colorName;
+  if (colorName && colorName.length>0) {
+    console.log("colorName",colorName);
+    
+    let colorQuery=colorName.map((color)=> ({colors:{$elemMatch:{colorName:color}}}))
+    if(findQuery["$and"]){
+      findQuery["$and"].push({$or:colorQuery})
+    }else{
+      Object.assign(findQuery,{$or:colorQuery})
+    }
   }
-  if (price) {
-    findQuery.discountedPrice = discountedPrice;
-  }
-  if (HighToLow) {
-    sortQuery.discountedPrice = -1;
-  } else {
-    sortQuery.discountedPrice = 1;
-  }
+  // if (price) {
+  //   findQuery.colors[discountedPrice] = discountedPrice;
+  // }
+ 
 
   console.log("findquery", findQuery);
 
   try {
-    const AllProducts = await Product.find({colors:{$elemMatch: findQuery}})
+    const AllProducts = await Product.find(findQuery)
       .sort(sortQuery)
       .limit(limit);
 
@@ -324,12 +351,17 @@ const FilterProducts = async (req, res) => {
       AllProducts,
     });
   } catch (error) {
-    console.log("get all products error", error);
+    console.log("get filter products error", error);
     return res.status(500).json({
       error: "Inernal Error please try later",
     });
   }
 };
+
+
+
+
+
 
 const GetProductDetails = async (req, res) => {
   const { slug } = req.body;
