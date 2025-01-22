@@ -3,7 +3,7 @@ import path from "path";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log(`Saving file for fieldname: ${file.fieldname}`);
+    // console.log(`Saving file for fieldname: ${file.fieldname}`);
     cb(null, './public/temp'); 
   },
   filename: (req, file, cb) => {

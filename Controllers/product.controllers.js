@@ -272,7 +272,7 @@ const FilterProducts = async (req, res) => {
     latest,
     HighToLow,
   } = req.body;
-console.log("priceRanges",priceRanges);
+// console.log("priceRanges",priceRanges);
 
   let sortQuery = {};
   let findQuery = {};
@@ -301,7 +301,7 @@ console.log("priceRanges",priceRanges);
   
     findQuery = { $or: rangeQueries };
   }
-  console.log('sizeranges',sizeRanges);
+  // console.log('sizeranges',sizeRanges);
   
 
   if (sizeRanges && sizeRanges.length > 0) {
@@ -326,7 +326,7 @@ console.log("priceRanges",priceRanges);
   }
 
   if (colorName && colorName.length>0) {
-    console.log("colorName",colorName);
+    // console.log("colorName",colorName);
     
     let colorQuery=colorName.map((color)=> ({colors:{$elemMatch:{colorName:color}}}))
     if(findQuery["$and"]){
@@ -340,7 +340,7 @@ console.log("priceRanges",priceRanges);
   // }
  
 
-  console.log("findquery", findQuery);
+  // console.log("findquery", findQuery);
 
   try {
     const AllProducts = await Product.find(findQuery)

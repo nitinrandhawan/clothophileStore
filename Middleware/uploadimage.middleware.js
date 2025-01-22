@@ -3,9 +3,9 @@ import { uploadOnCloudinary } from "../Utils/Cloudinary.js";
 export const uploadImages = async (req, res, next) => {
   const { colors } = req.body;
 
-  console.log("req.body", req.body);
-  console.log("req.files", req.files);
-  console.log("colors from req body", colors);
+  // console.log("req.body", req.body);
+  // console.log("req.files", req.files);
+  // console.log("colors from req body", colors);
 
   // Ensure that colors array is provided
   if (!colors || colors.length === 0) {
@@ -43,7 +43,7 @@ export const uploadImages = async (req, res, next) => {
     if (!mainImagePath) {
       return res.status(401).json({ error: "Upload image for each color" });
     }
-    console.log("mainimagepath", mainImagePath);
+    // console.log("mainimagepath", mainImagePath);
 
     // Upload the main image to Cloudinary
     const mainImageUrl = await uploadOnCloudinary(mainImagePath, "product_images");

@@ -155,8 +155,8 @@ return res.status(401).json({
     await Cart.findOne({ user: user_id })
       .then(async (cart) => {
 
-        console.log("cart",cart);
-        console.log('result',result.product._id);
+        // console.log("cart",cart);
+        // console.log('result',result.product._id);
         
         const ItemIndex = cart.cartItems.findIndex(
           (item) =>
@@ -165,7 +165,7 @@ return res.status(401).json({
                   item.slug === result.colorVariant.slug && item.size===size
         );
 
-        console.log("itemindex",ItemIndex);
+        // console.log("itemindex",ItemIndex);
         
         if (ItemIndex > -1) {
 
